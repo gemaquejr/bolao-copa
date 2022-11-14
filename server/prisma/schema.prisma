@@ -1,8 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
 }
 
 datasource db {
@@ -11,8 +12,8 @@ datasource db {
 }
 
 model Bet {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
-  code      String @unique
+  code      String   @unique
   createdAt DateTime @default(now())
 }
