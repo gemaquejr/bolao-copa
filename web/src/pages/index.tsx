@@ -1,13 +1,13 @@
-// interface HomeProps {
-//   count: number;
-// }
+interface HomeProps {
+  betCount: number;
+}
 
 import Image from 'next/image'
 import appPreviewImg from '../assets/preview.png'
 import logoImg from '../assets/logo.png'
 import checkImg from '../assets/checked.png'
    
-export default function Home() {
+export default function Home(props: HomeProps) {
   return (
     <div className="max-w-[1124px] h-screen mx-auto grid grid-cols-2 gap-28 items-center">
       <main>
@@ -46,7 +46,7 @@ export default function Home() {
         <div className="flex items-center gap-6">
           <Image src={checkImg} alt="" width={50} height={51}/>
           <div className="flex flex-col">
-            <span className="font-bold text-2xl">+2.034</span>
+            <span className="font-bold text-2xl">+{props.betCount}</span>
             <span>Bolões criados</span>
           </div>
         </div>
@@ -69,13 +69,13 @@ export default function Home() {
   )
 }
 
-// export const getServerSideProps = async () => {
-//   const response = await fetch('http://localhost:3333/bets/count')
-//   const data = await response.json()
+export const getServerSideProps = async () => {
+  const response = await fetch('http://localhost:3333/bets/count')
+  const data = await response.json()
 
-//   return {
-//     props: {
-//       count: data.count,
-//     }
-//   }
-// }
+  return {
+    props: {
+      betCount: data.count,
+    }
+  }
+}
