@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma';
 
 export async function betRoutes(fastify: FastifyInstance) {
-    fastify.get('/bet/count', async () => {
+    fastify.get('/bets/count', async () => {
         const count = await prisma.bet.count()
 
         return { count }
