@@ -3,6 +3,7 @@ import appPreviewImg from '../assets/preview.png';
 import logoImg from '../assets/logo.png';
 import checkImg from '../assets/checked.png';
 import { api } from '../lib/axios';
+import { FormEvent, useState } from 'react';
 
 interface HomeProps {
   betCount: number;
@@ -11,6 +12,29 @@ interface HomeProps {
 }
 
 export default function Home(props: HomeProps) {
+  const [betTitle, setBetTitle] = useState('')
+
+  async function createBet(event: FormEvent) {
+    event.preventDefault()
+
+    try {
+      const response = await api.post('/bets', {
+        title: betTitle,
+    });
+
+    const { code } = response.data;
+
+    await navigator.clipboard.writeText(code)
+
+    alert('Bolão criado com sucesso ! Código criado para a área de transferência')
+
+    setBetTitle('')
+  } catch (err) {
+    alert('Falha ao criar o bolão, tente novamente !')
+  }
+
+}
+
   return (
     <div className="max-w-[1124px] h-screen mx-auto grid grid-cols-2 gap-28 items-center">
       <main>
@@ -26,12 +50,14 @@ export default function Home(props: HomeProps) {
         </strong>
       </div>
 
-      <form className="mt-10 flex gap-2">
+      <form onSubmit={createBet} className="mt-10 flex gap-2">
         <input
-          className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm"
+          className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100"
           type="text"
           required
           placeholder="Qual o nome do seu bolão ?"
+          onChange={event => setBetTitle(event.target.value)}
+          value={betTitle}
         />
         <button
           className="bg-yellow-500 px-6 py-4 rounded text-gray-900 font-bold text-sm uppercase hover:bg-yellow-700"
