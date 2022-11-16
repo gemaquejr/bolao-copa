@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import shortUniqueId from 'short-unique-id'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma';
+import { authenticate } from '../plugins/authenticate';
 
 export async function betRoutes(fastify: FastifyInstance) {
     fastify.get('/bets/count', async () => {
@@ -45,7 +46,62 @@ export async function betRoutes(fastify: FastifyInstance) {
             })
         }
 
-
         return reply.status(201).send({ code })
     })
+
+    fastify.post('/bets/:id/join', {
+        onRequest: [authenticate]
+    }, async (request, reply) => {
+        const joinBetBody = z.object({
+            code: z.string(),        
+        })
+
+        const { code } = joinBetBody.parse(request.body)
+
+        const bet = await prisma.bet.findUnique({
+            where: {
+                code,
+            },
+            include: {
+                participants: {
+                    where: {
+                        userId: request.user.sub,
+                    }
+                }
+            }
+        })
+
+        if (!bet) {
+            return reply.status(400).send({
+                message: 'Bet not found.'
+            })
+        }
+
+        if (bet.participants.length > 0) {
+            return reply.status(400).send({
+                message: 'You already joined this Bet.'
+            })
+        }
+
+        if (!bet.ownerId) {
+            await prisma.bet.update({
+                where: {
+                    id: bet.id,
+                },
+                data: {
+                    ownerId: request.user.sub,
+                }
+            })
+        }
+
+        await prisma.participant.create({
+            data: {
+                betId: bet.id,
+                userId: request.user.sub,
+            }
+        })
+
+        return reply.status(201).send();
+    })
+
 }
