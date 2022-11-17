@@ -49,7 +49,7 @@ export async function betRoutes(fastify: FastifyInstance) {
         return reply.status(201).send({ code })
     })
 
-    fastify.post('/bets/:id/join', {
+    fastify.post('/bets/join', {
         onRequest: [authenticate]
     }, async (request, reply) => {
         const joinBetBody = z.object({
