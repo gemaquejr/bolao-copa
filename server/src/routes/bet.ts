@@ -143,7 +143,48 @@ export async function betRoutes(fastify: FastifyInstance) {
         })
 
         return { bets }
-
     })
 
+    fastify.get('/bets/:id', {
+        onRequest: [authenticate]
+    }, async (request) => {
+        const getBetParams = z.object({
+            id: z.string(),        
+        })
+
+        const { id } = getBetParams.parse(request.params)
+
+        const bet = await prisma.bet.findUnique({
+            where: {
+                id, 
+            },
+            include: {
+                _count: {
+                    select: {
+                        participants: true,
+                    }
+                },
+                participants: {
+                    select: {
+                        id: true,
+
+                        user: {
+                            select: {
+                                avatarUrl: true,
+                            }
+                        }
+                    },
+                    take: 4,                    
+                },
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
+            }
+        })
+
+        return { bet }
+    })
 }
